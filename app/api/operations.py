@@ -5,9 +5,9 @@ from sqlalchemy.orm import Session
 import uuid
 
 from app.schemas import WalletResponse, WalletOperationRequest
-import app.services.wallets as services_wallets
 import app.services.operations as services_operations
 from app.database import get_db
+import app.exceptions as exceptions
 
 router = APIRouter()
 
@@ -25,7 +25,7 @@ def add_operation(
             operation_type=payload.operation_type,
             amount=payload.amount,
         )
-    except services_wallets.WalletNotFound:
-        raise HTTPException(status_code=404, detail="Wallet not found!")
-    except services_operations.InsufficientFunds:
-        raise HTTPException(status_code=400, detail="InsufficientFunds")
+    except exceptions.WalletNotFound:
+        raise HTTPException(status_code=404, detail="WalletNotFound!")
+    except exceptions.InsufficientFunds:
+        raise HTTPException(status_code=409, detail="InsufficientFunds")

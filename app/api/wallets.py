@@ -5,6 +5,7 @@ import uuid
 
 from app.schemas import WalletResponse, WalletCreateRequest
 import app.services.wallets as services_wallets
+import app.exceptions as exceptions
 
 from app.database import get_db
 
@@ -15,7 +16,7 @@ router = APIRouter()
 def get_balance(wallet_uuid: uuid.UUID, db: Session = Depends(get_db)):
     try:
         return services_wallets.get_wallet(db=db, wallet_uuid=wallet_uuid)
-    except services_wallets.WalletNotFound:
+    except exceptions.WalletNotFound:
         raise HTTPException(status_code=404, detail="Wallet not found!")
 
 
@@ -27,5 +28,5 @@ def create_wallet(payload: WalletCreateRequest, db: Session = Depends(get_db)):
             wallet_name=payload.wallet_name,
             initial_balance=payload.initial_balance,
         )
-    except services_wallets.WalletNameTaken:
-        raise HTTPException(status_code=409, detail="Wallet name already exists!")
+    except exceptions.WalletNameTaken:
+        raise HTTPException(status_code=409, detail="WalletNameTaken")
