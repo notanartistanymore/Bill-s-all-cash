@@ -10,15 +10,17 @@ class OperationType(str, Enum):
 
 class WalletCreateRequest(BaseModel):
     wallet_name: str = Field(min_length=1, max_length=100)
-    initial_balance: int = Field(default=0, ge=0)
+    initial_balance: int = Field(
+        default=0, ge=0, description="Initial balance in cents"
+    )
 
 
 class WalletResponse(BaseModel):
     wallet_uuid: uuid.UUID
     wallet_name: str
-    wallet_balance: int
+    wallet_balance: int = Field(description="Balance in cents")
 
 
 class WalletOperationRequest(BaseModel):
     operation_type: OperationType
-    amount: int = Field(gt=0)
+    amount: int = Field(gt=0, description="Amount in cents")

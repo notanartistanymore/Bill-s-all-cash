@@ -1,4 +1,5 @@
 import uuid
+import pytest
 
 from app.tests.helpers import create_wallet, get_wallet, operate
 
@@ -74,3 +75,23 @@ def test_withdraw_insufficient_funds(client):
     response = operate(client, wallet["wallet_uuid"], "WITHDRAW", 200)
     assert response.status_code == 409
     assert get_wallet(client, wallet["wallet_uuid"]).json()["wallet_balance"] == 100
+
+
+@pytest.mark.parametrize("balance", [2_147_483_648, 5_000_000_000])
+def test_bigint_balance_round_trip(client, balance):
+    wallet = create_wallet(client, balance=balance)
+
+    assert wallet["wallet_balance"] == balance
+    assert get_wallet(client, wallet["wallet_uuid"]).json()["wallet_balance"] == balance
+
+
+def test_deposit_crosses_integer_limit(client):
+    wallet = create_wallet(client, balance=2_147_483_647)
+
+    response = operate(client, wallet["wallet_uuid"], "DEPOSIT", 1)
+    assert response.status_code == 200
+    assert response.json()["wallet_balance"] == 2_147_483_648
+
+    response = operate(client, wallet["wallet_uuid"], "WITHDRAW", 75)
+    assert response.status_code == 200
+    assert response.json()["wallet_balance"] == 2_147_483_573

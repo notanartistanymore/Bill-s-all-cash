@@ -22,7 +22,6 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      # Внутри compose-сети БД доступна по имени сервиса, а не по localhost.
       DATABASE_URL: postgresql+psycopg://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:5432/${DATABASE_NAME}
     ports:
       - "8000:8000"
